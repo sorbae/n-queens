@@ -79,12 +79,36 @@
     //
     // test if a specific row on this board contains a conflict
     hasRowConflictAt: function(rowIndex) {
-      return false; // fixme
+      // get row by rowIndex
+      //   reduce items in rowIndex
+      //     evaluate to a sum
+      //   if evaluated sum is greater than 1
+      //     return true
+      //   otherwise return false
+
+      let row = this.get(rowIndex);
+      let rowSum = row.reduce(function(acc, num) {
+        return acc + num;
+      }, 0);
+      return rowSum > 1;
     },
 
     // test if any rows on this board contain conflicts
     hasAnyRowConflicts: function() {
-      return false; // fixme
+      // grab rows of matrix
+      // iterate over each row
+      //   call hasRowConflictAt on row
+      //     if hasRowConflictAt returns true
+      //       return true
+      //     else false
+
+      let rows = this.rows();
+      for (let i = 0; i < rows.length; i++) {
+        if (this.hasRowConflictAt(i)) {
+          return true;
+        }
+      }
+      return false;
     },
 
 
@@ -93,6 +117,31 @@
     // --------------------------------------------------------------
     //
     // test if a specific column on this board contains a conflict
+    columns: function() {
+      //Create array to store columns
+      //Store rows in variable
+      //Define dimensions
+        //Fill columns array width based on dims
+      //Loop over each row (for var loop)
+        //Loop over each item in row
+          //Push item of result's i index into column index
+      //Return columns
+
+      let rows = this.rows();
+      let results = [];
+      rows.forEach(function(row) {
+        results.push([]);
+      });
+
+      let cols = results;
+      for (let row of rows) {
+        for (let i = 0; i < row.length; i++) {
+          cols[i].push(row[i]);
+        }
+      }
+      return cols;
+    },
+
     hasColConflictAt: function(colIndex) {
       return false; // fixme
     },
