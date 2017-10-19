@@ -74,6 +74,23 @@
     =                 TODO: fill in these Helper Functions                    =
     =========================================================================*/
 
+
+    detectConflicts: function(list) {
+      let result = list.reduce(function(acc, num) {
+        return acc + num;
+      }, 0);
+      return result > 1;
+    },
+
+    traverseMatrixForConflict: function(length, conflictCheck) {
+      for (let i = 0; i < length; i++) {
+        if (conflictCheck(i)) {
+          return true;
+        }
+      }
+      return false;
+    },
+
     // ROWS - run from left to right
     // --------------------------------------------------------------
     //
@@ -85,12 +102,8 @@
       //   if evaluated sum is greater than 1
       //     return true
       //   otherwise return false
-
       let row = this.get(rowIndex);
-      let rowSum = row.reduce(function(acc, num) {
-        return acc + num;
-      }, 0);
-      return rowSum > 1;
+      return this.detectConflicts(row);
     },
 
     // test if any rows on this board contain conflicts
@@ -103,12 +116,7 @@
       //     else false
 
       let rows = this.rows();
-      for (let i = 0; i < rows.length; i++) {
-        if (this.hasRowConflictAt(i)) {
-          return true;
-        }
-      }
-      return false;
+      return this.traverseMatrixForConflict(rows.length, this.hasRowConflictAt.bind(this));
     },
 
 
@@ -148,21 +156,13 @@
 
     hasColConflictAt: function(colIndex) {
       let column = this.getColumn(colIndex);
-      let columnSum = column.reduce(function(acc, num) {
-        return acc + num;
-      }, 0);
-      return columnSum > 1;
+      return this.detectConflicts(column);
     },
 
     // test if any columns on this board contain conflicts
     hasAnyColConflicts: function() {
       let columns = this.columns();
-      for (let i = 0; i < columns.length; i++) {
-        if (this.hasColConflictAt(i)) {
-          return true;
-        }
-      }
-      return false; // fixme
+      return this.traverseMatrixForConflict(columns.length, this.hasColConflictAt.bind(this));
     },
 
 
@@ -172,19 +172,14 @@
     //
     // test if a specific major diagonal on this board contains a conflict
     hasMajorDiagonalConflictAt: function(majorDiagonalColumnIndexAtFirstRow) { 
-      //Slice n values for a given row
-      //Do this through all rows
-      //If arg < 0,
-        //Slice (0, n)
-      //Else do below slicing
-      console.log(this.get(majorDiagonalColumnIndexAtFirstRow))
+      let columnIndex = Math.abs(majorDiagonalColumnIndexAtFirstRow);
       let rows = this.rows();
       let newMatrix = [];
       if (majorDiagonalColumnIndexAtFirstRow < 0) {
-        newMatrix = rows.slice(Math.abs(majorDiagonalColumnIndexAtFirstRow));
+        newMatrix = rows.slice(columnIndex);
       } else if (majorDiagonalColumnIndexAtFirstRow > 0) {
-        rows.forEach(function(row){
-          newMatrix.push(row.slice(majorDiagonalColumnIndexAtFirstRow));  
+        rows.forEach(function(row) {
+          newMatrix.push(row.slice(columnIndex));  
         }); 
       } else {
         newMatrix = rows;
@@ -199,15 +194,12 @@
         });
       });
 
-      let diagonalsSum = diagonals.reduce(function(acc, num) {
-        return acc + num;
-      }, 0);
-      return diagonalsSum > 1;
+      return this.detectConflicts(diagonals);
     },
 
     // test if any major diagonals on this board contain conflicts
     hasAnyMajorDiagonalConflicts: function() {
-      let range = this.rows().length;
+      let range = this.rows().length;      
       for (let i = -range + 1; i < range; i++) {
         if (this.hasMajorDiagonalConflictAt(i)) {
           return true;
