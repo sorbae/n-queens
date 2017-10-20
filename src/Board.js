@@ -82,8 +82,8 @@
       return result > 1;
     },
 
-    traverseMatrixForConflict: function(length, conflictCheck) {
-      for (let i = 0; i < length; i++) {
+    traverseMatrixForConflict: function(start, end, conflictCheck) {
+      for (let i = start; i < end; i++) {
         if (conflictCheck(i)) {
           return true;
         }
@@ -116,7 +116,7 @@
       //     else false
 
       let rows = this.rows();
-      return this.traverseMatrixForConflict(rows.length, this.hasRowConflictAt.bind(this));
+      return this.traverseMatrixForConflict(0, rows.length, this.hasRowConflictAt.bind(this));
     },
 
 
@@ -125,44 +125,19 @@
     // --------------------------------------------------------------
     //
     // test if a specific column on this board contains a conflict
-    columns: function() {
-      //Create array to store columns
-      //Store rows in variable
-      //Define dimensions
-        //Fill columns array width based on dims
-      //Loop over each row (for var loop)
-        //Loop over each item in row
-          //Push item of result's i index into column index
-      //Return columns
-
-      let rows = this.rows();
-      let results = [];
-      rows.forEach(function(row) {
-        results.push([]);
-      });
-
-      let cols = results;
-      for (let row of rows) {
-        for (let i = 0; i < row.length; i++) {
-          cols[i].push(row[i]);
-        }
-      }
-      return cols;
-    },
-
-    getColumn: function(index) {
-      return this.columns()[index]; 
-    },
 
     hasColConflictAt: function(colIndex) {
-      let column = this.getColumn(colIndex);
-      return this.detectConflicts(column);
+      let columnArr = [];
+      let column = this.rows().forEach(function(row) {
+        columnArr.push(row[colIndex]);
+      })
+    
+      return this.detectConflicts(columnArr);
     },
 
     // test if any columns on this board contain conflicts
     hasAnyColConflicts: function() {
-      let columns = this.columns();
-      return this.traverseMatrixForConflict(columns.length, this.hasColConflictAt.bind(this));
+      return this.traverseMatrixForConflict(0, this.rows().length, this.hasColConflictAt.bind(this));
     },
 
 
@@ -172,40 +147,23 @@
     //
     // test if a specific major diagonal on this board contains a conflict
     hasMajorDiagonalConflictAt: function(majorDiagonalColumnIndexAtFirstRow) { 
-      let columnIndex = Math.abs(majorDiagonalColumnIndexAtFirstRow);
-      let rows = this.rows();
-      let newMatrix = [];
-      if (majorDiagonalColumnIndexAtFirstRow < 0) {
-        newMatrix = rows.slice(columnIndex);
-      } else if (majorDiagonalColumnIndexAtFirstRow > 0) {
-        rows.forEach(function(row) {
-          newMatrix.push(row.slice(columnIndex));  
-        }); 
-      } else {
-        newMatrix = rows;
+      var matrix = this.rows();
+      var columns = majorDiagonalColumnIndexAtFirstRow;
+      var storage = [];
+
+      for (var i = 0; i < matrix.length; i++, columns++) {
+        if (matrix[i][columns]) {
+          storage.push(matrix[i][columns]);
+        }
       }
-
-      let diagonals = [];
-      newMatrix.forEach(function(row, index1) {
-        row.forEach(function(item, index2) {
-          if (index1 === index2) {
-            diagonals.push(item);    
-          }
-        });
-      });
-
-      return this.detectConflicts(diagonals);
+      return this.detectConflicts(storage); // fixme
     },
 
     // test if any major diagonals on this board contain conflicts
     hasAnyMajorDiagonalConflicts: function() {
-      let range = this.rows().length;      
-      for (let i = -range + 1; i < range; i++) {
-        if (this.hasMajorDiagonalConflictAt(i)) {
-          return true;
-        }
-      }
-      return false; // fixme
+      let range = this.rows().length;
+      return this.traverseMatrixForConflict(-range + 1, range, this.hasMajorDiagonalConflictAt.bind(this));
+
     },
 
 
@@ -229,8 +187,8 @@
 
     // test if any minor diagonals on this board contain conflicts
     hasAnyMinorDiagonalConflicts: function() {
-      var range = this.rows().length + 2;
-      return this.traverseMatrixForConflict(range, this.hasMinorDiagonalConflictAt.bind(this));
+      var range = this.rows().length;
+      return this.traverseMatrixForConflict(0, range + 2, this.hasMinorDiagonalConflictAt.bind(this));
     }
 
     /*--------------------                              End of Helper Functions  ---------------------*/
